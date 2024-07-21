@@ -5,10 +5,9 @@ using UnityEngine;
 public class EmptyScript : MonoBehaviour
 {
     public int id;
-    public GameObject camera;
-
+    
     private void OnMouseDown()
     {
-        camera.GetComponent<GameScript>().Spawn(id,this.gameObject);
+        GameScript.Instance.Spawn(id,this.gameObject);
     }
 }
