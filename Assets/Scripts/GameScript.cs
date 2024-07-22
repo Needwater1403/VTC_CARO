@@ -208,7 +208,7 @@ public class GameScript : MonoBehaviour
     {
         if (move == size * size)
         {
-            Debug.Log("DRAW");
+            UIManager.Instance.ShowOrHideWinPanel("DRAW",true);
             return;
         }
         if (gameEnd) return;
@@ -222,8 +222,7 @@ public class GameScript : MonoBehaviour
             {
                 Turn = Seed.EMPTY;
                 gameEnd = true;
-                Debug.Log("PLAYER 1 WIN");
-                UIManager.Instance.ShowOrHideWinPanel(1,true);
+                UIManager.Instance.ShowOrHideWinPanel("PLAYER 1 WIN",true);
             }
             else
             {
@@ -248,8 +247,7 @@ public class GameScript : MonoBehaviour
             {
                 Turn = Seed.EMPTY;
                 gameEnd = true;
-                Debug.Log("PLAYER 2 WIN");
-                UIManager.Instance.ShowOrHideWinPanel(2,true);
+                UIManager.Instance.ShowOrHideWinPanel("PLAYER 2 WIN",true);
             }
             else
             {
