@@ -12,6 +12,7 @@ public class GameScript : MonoBehaviour
     [SerializeField] private GameObject crossPrefab;
     [SerializeField] private GameObject noughtPrefab;
     [SerializeField] private GameObject cellsPrefab;
+    [SerializeField] private GameObject Board;
     public int size;
     private int boardSize;
     public enum Seed
@@ -32,14 +33,23 @@ public class GameScript : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-        
+    }
+
+    private int move;
+    private bool gameEnd;
+    private int depth;
+
+    public void StartGame()
+    {
+        Debug.Log($"Start Game: {size}x{size} - {Mode}");
         boardSize = size * size;
         player = new Seed[boardSize];
         allSpawns = new GameObject[boardSize];
         Turn = Seed.CROSS;
         
-        depth = Mode == Difficulty.EASY ? 3 : 6;
-        
+        if (Mode == Difficulty.EASY) depth = 3;
+        else depth = size == 3 ? 9 : 6;
+
         for(int i = 0; i < size*size; i++)
         {   
             player[i] = Seed.EMPTY;
@@ -47,10 +57,15 @@ public class GameScript : MonoBehaviour
         SpawnBoard(size);
     }
 
-    private int move;
-    private bool gameEnd;
-    private int depth;
-
+    public void ResetGame()
+    {
+        move = 0;
+        gameEnd = false;
+        foreach (var obj in allSpawns)
+        {
+            Destroy(obj);
+        }
+    }
     private void SpawnBoard(int size)
     {
         var a1 = (size-1) / 2;
@@ -61,7 +76,7 @@ public class GameScript : MonoBehaviour
             for (var j = 0; j < size; j++)
             {
                 var a = Instantiate(cellsPrefab, cell0 + new Vector3(j * 2.5f, i * (-2.5f), 0),
-                    quaternion.identity);
+                    quaternion.identity, Board.transform);
                 a.GetComponent<EmptyScript>().id = i * size + j;
                 allSpawns[i * size + j] = a;
             }
@@ -208,6 +223,7 @@ public class GameScript : MonoBehaviour
     {
         if (move == size * size)
         {
+            gameEnd = true;
             UIManager.Instance.ShowOrHideWinPanel("DRAW",true);
             return;
         }
@@ -215,7 +231,7 @@ public class GameScript : MonoBehaviour
 
         if (Turn == Seed.CROSS)
         {
-            allSpawns[id] = Instantiate(crossPrefab, emptycell.transform.position, Quaternion.identity);
+            allSpawns[id] = Instantiate(crossPrefab, emptycell.transform.position, Quaternion.identity, Board.transform);
             player[id] = Turn;
 
             if (CheckWinCondition(Turn))
@@ -237,7 +253,7 @@ public class GameScript : MonoBehaviour
             int bestPosition = FindBestMove();
             if (bestPosition > -1)
             {
-                var a = Instantiate(noughtPrefab, allSpawns[bestPosition].transform.position, Quaternion.identity);
+                var a = Instantiate(noughtPrefab, allSpawns[bestPosition].transform.position, Quaternion.identity, Board.transform);
                 Destroy(allSpawns[bestPosition]);
                 allSpawns[bestPosition] = a;
                 player[bestPosition] = Turn;
@@ -360,7 +376,8 @@ public class GameScript : MonoBehaviour
         // Return a score based on the current board position
         return 0;
     }
-
+    
+    
     private bool CheckSurroundingCells(int index, Seed[] board)
     {
         var a = 0;
